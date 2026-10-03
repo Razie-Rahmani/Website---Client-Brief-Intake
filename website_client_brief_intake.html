@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>فرم بریف وب‌سایت · Website Brief</title>
+
+  <style>
+    /* =====================================================
+       THEME TOKENS (light by default, dark via media query
+       or via the data-theme="dark" attribute)
+       ===================================================== */
+    :root {
+      --bg: #faf8f4;   /* page background */
+      --fg: #1d1b18;   /* main text */
+      --mu: #6b655c;   /* muted text */
+      --cd: #fff;      /* card background */
+      --bd: #e4dfd5;   /* borders */
+      --ac: #0f766e;   /* accent color */
+      --ac2: #e3f3f0;  /* soft accent background */
+      --wn: #fff4d6;   /* warning / highlight box */
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Dark mode following the system setting */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme=light]) {
+        --bg: #17161a;
+        --fg: #f0ece4;
+        --mu: #a49e93;
+        --cd: #222025;
+        --bd: #37343b;
+        --ac: #4fd1c0;
+        --ac2: #1b2f2d;
+        --wn: #3a3220;
+      }
+    }
+
+    /* Dark mode forced manually */
+    :root[data-theme=dark] {
+      --bg: #17161a;
+      --fg: #f0ece4;
+      --mu: #a49e93;
+      --cd: #222025;
+      --bd: #37343b;
+      --ac: #4fd1c0;
+      --ac2: #1b2f2d;
+      --wn: #3a3220;
+    }
+
+    /* =====================================================
+       BASE / LAYOUT
+       ===================================================== */
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.7 Tahoma, "Segoe UI", system-ui, sans-serif;
+    }
+
+    main {
+      max-width: 760px;
+      margin: auto;
+      padding: 16px 16px 120px; /* bottom padding leaves room for the fixed price bar */
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: .4em 0;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin: 0 0 10px;
+      color: var(--ac);
+    }
+
+    /* =====================================================
+       CARDS & FORM CONTROLS
+       ===================================================== */
+    .card {
+      background: var(--cd);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 14px 0;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 4px;
+      font-weight: 600;
+    }
+
+    input[type=text],
+    input[type=number],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 80px;
+    }
+
+    /* Selectable option row (radio / checkbox) */
+    .opt {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 8px 10px;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      margin: 6px 0;
+      cursor: pointer;
+      font-weight: 400;
+    }
+
+    /* Highlight the option when its input is checked */
+    .opt:has(input:checked) {
+      border-color: var(--ac);
+      background: var(--ac2);
+    }
+
+    .opt input {
+      margin-top: 6px;
+    }
+
+    /* Price tag shown at the end of an option row */
+    .opt small {
+      margin-inline-start: auto;
+      color: var(--mu);
+      white-space: nowrap;
+    }
+
+    /* Responsive multi-column grid for option lists */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0 10px;
+    }
+
+    /* Yellow highlighted sub-question box */
+    .box {
+      background: var(--wn);
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
+    .btn {
+      background: var(--ac);
+      color: var(--bg);
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 4px 0;
+    }
+
+    /* Secondary button style */
+    .btn.s {
+      background: var(--ac2);
+      color: var(--ac);
+    }
+
+    .btn:disabled {
+      opacity: .4;
+    }
+
+    .mu {
+      color: var(--mu);
+      font-size: .9rem;
+    }
+
+    /* =====================================================
+       LANGUAGE GATE (first screen)
+       ===================================================== */
+    #gate {
+      text-align: center;
+      padding-top: 12vh;
+    }
+
+    #gate .btn {
+      width: 42%;
+      min-width: 130px;
+      font-size: 1.2rem;
+      padding: 22px 0;
+      margin: 6px;
+    }
+
+    /* =====================================================
+       FIXED BOTTOM BAR (live price estimate)
+       ===================================================== */
+    #bar {
+      position: fixed;
+      inset-inline: 0;
+      bottom: 0;
+      background: var(--cd);
+      border-top: 1px solid var(--bd);
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      z-index: 5;
+    }
+
+    #bar b {
+      color: var(--ac);
+      font-size: 1.15rem;
+    }
+
+    /* =====================================================
+       PRICE BREAKDOWN TABLE
+       ===================================================== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    td {
+      padding: 6px 4px;
+      border-bottom: 1px dashed var(--bd);
+    }
+
+    td:last-child {
+      text-align: end;
+      white-space: nowrap;
+    }
+
+    .tot td {
+      font-weight: 800;
+      font-size: 1.1rem;
+      border: 0;
+    }
+
+    /* =====================================================
+       MISC
+       ===================================================== */
+    details {
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .ct li {
+      margin: 6px 0;
+    }
+
+    .ov {
+      overflow-x: auto;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- The whole form is rendered into #app by the script below -->
+  <main id="app"></main>
+
+  <!-- Fixed bottom bar showing the live price estimate -->
+  <div id="bar" hidden>
+    <span id="bl"></span>
+    <b id="bt"></b>
+  </div>
+
+<script>
+/* =========================================================
+   1. CONFIGURATION  (EDIT ME: your info & rates, in Toman)
+   ========================================================= */
+const CFG = {
+  name: ["راضیه رحمانی", "Razie Rahmani"],  // [Persian, English]
+  tg: "RazzleDazzle_0998",              // Telegram username used by the "open Telegram" button
+
+  includedPages: 5,        // pages included in the base price
+  extraPage: 400000,       // price per extra page
+  extraLang: 1500000,      // price per extra language
+  logo: 2500000,           // logo design price
+  theme: 2000000,          // theme / brand style design price
+  writePerPage: 300000,    // copywriting price per page
+  customFactor: 1.3,       // multiplier for custom-coded sites
+  rushFactor: 1.3,         // multiplier for rush delivery
+  sideTypes: 0.4,          // fraction of price charged for additional site types
+  validDays: 14,           // (estimate validity in days)
+
+  // Approximate third-party costs shown to the client
+  req: {
+    ir: 100000,            // .ir domain per year
+    com: 700000,           // .com domain per year
+    wpHost: 1500000,       // WordPress hosting per year
+    vps: 3500000,          // VPS per year
+    wpPlug: [0, 2000000]   // paid WordPress plugins/theme range
+  }
+};
+
+/* ---------------------------------------------------------
+   Website types:  [id, [Persian label, English label], base price]
+   --------------------------------------------------------- */
+const TYPES = [
+  ['land',  ['لندینگ‌پیج (تک‌صفحه)', 'Landing page'], 3e6],
+  ['corp',  ['شرکتی / معرفی کسب‌وکار', 'Corporate / business'], 7e6],
+  ['pers',  ['برند شخصی / رزومه', 'Personal brand / CV'], 5e6],
+  ['port',  ['نمونه‌کار', 'Portfolio'], 5e6],
+  ['blog',  ['وبلاگ / مجله', 'Blog / magazine'], 5e6],
+  ['shop',  ['فروشگاه اینترنتی', 'E-commerce store'], 14e6],
+  ['book',  ['رزرو / نوبت‌دهی (کلینیک، سالن، رستوران)', 'Reservation / booking'], 9e6],
+  ['edu',   ['آموزشی / دوره آنلاین', 'Education / online courses'], 15e6],
+  ['news',  ['خبری', 'News site'], 10e6],
+  ['dir',   ['دایرکتوری / نیازمندی', 'Directory / classifieds'], 14e6],
+  ['npo',   ['خیریه / سمن', 'Non-profit'], 6e6],
+  ['event', ['رویداد / همایش', 'Event'], 4e6],
+  ['app',   ['وب‌اپ / پنل سفارشی', 'Custom web app'], 2e7],
+  ['other', ['سایر', 'Other'], 8e6]
+];
+
+/* ---------------------------------------------------------
+   Optional features:  [id, [Persian label, English label], price]
+   --------------------------------------------------------- */
+const FEATS = [
+  ['form',  ['فرم تماس', 'Contact form'], 3e5],
+  ['blogm', ['بخش بلاگ با مدیریت مطلب', 'Blog with CMS'], 12e5],
+  ['admin', ['پنل مدیریت محتوا', 'Content admin panel'], 3e6],
+  ['users', ['ثبت‌نام و حساب کاربری', 'User accounts'], 25e5],
+  ['otp',   ['ورود با پیامک (OTP)', 'SMS OTP login'], 12e5],
+  ['pay',   ['درگاه پرداخت (زرین‌پال و …)', 'Online payment (Zarinpal etc.)'], 15e5],
+  ['ship',  ['روش‌های ارسال (پست، تیپاکس) و موجودی', 'Iranian shipping & inventory'], 15e5],
+  ['disc',  ['کد تخفیف', 'Discount codes'], 5e5],
+  ['bk',    ['سیستم رزرو آنلاین', 'Online booking system'], 3e6],
+  ['chat',  ['چت آنلاین (ابزار ایرانی)', 'Live chat (Iranian tool)'], 6e5],
+  ['map',   ['نقشه (نشان / بلد)', 'Map (Neshan / Balad)'], 4e5],
+  ['seo',   ['سئوی پایه (ساختار، متا، نقشه سایت)', 'Basic SEO'], 15e5],
+  ['ana',   ['آمار بازدید (Matomo)', 'Analytics (Matomo)'], 5e5],
+  ['sms',   ['خبرنامه / پیامک تبلیغاتی', 'Newsletter / promo SMS'], 8e5],
+  ['srch',  ['جستجوی پیشرفته و فیلتر', 'Search & filters'], 6e5],
+  ['gal',   ['گالری تصاویر', 'Image gallery'], 5e5],
+  ['vid',   ['ویدیو / پادکست', 'Video / podcast'], 4e5],
+  ['cmt',   ['نظرات و امتیازدهی', 'Comments & reviews'], 5e5],
+  ['anim',  ['انیمیشن و جلوه‌های ویژه', 'Animations & effects'], 15e5],
+  ['dark',  ['حالت تیره', 'Dark mode'], 6e5],
+  ['pwa',   ['اپ نصب‌شدنی (PWA)', 'Installable PWA'], 15e5],
+  ['spd',   ['بهینه‌سازی سرعت', 'Speed optimization'], 8e5],
+  ['enm',   ['راهنمایی دریافت اینماد', 'Enamad setup help'], 7e5],
+  ['train', ['جلسه آموزش کار با سایت', 'Training session'], 5e5],
+  ['maint', ['۳ ماه پشتیبانی و نگهداری', '3 months maintenance'], 12e5]
+];
+
+/* ---------------------------------------------------------
+   Website languages:  [id, [Persian label, English label]]
+   --------------------------------------------------------- */
+const LANGS = [
+  ['fa', ['فارسی', 'Persian']],
+  ['en', ['انگلیسی', 'English']],
+  ['ar', ['عربی', 'Arabic']],
+  ['tr', ['ترکی', 'Turkish']],
+  ['ku', ['کردی', 'Kurdish']],
+  ['ru', ['روسی', 'Russian']],
+  ['de', ['آلمانی', 'German']],
+  ['fr', ['فرانسوی', 'French']],
+  ['zh', ['چینی', 'Chinese']]
+];
+/* ===== end config ===== */
+
+
+/* =========================================================
+   2. STATE & SMALL HELPERS
+   ========================================================= */
+
+// Global form state: everything the user has chosen so far
+const S = {
+  lang: 'fa',                  // current UI language
+  types: new Set(),            // selected website types
+  langs: new Set(['fa']),      // selected website languages
+  feats: new Set(),            // selected features
+  pages: 5,                    // number of pages
+  terms: [0, 0, 0, 0, 0]       // checkbox state of each term
+};
+
+// T: pick the Persian or English item from a [fa, en] pair
+const T = x => x[S.lang == 'fa' ? 0 : 1],
+
+// N: format a number according to the current language
+  N = n => Math.round(n).toLocaleString(S.lang == 'fa' ? 'fa-IR' : 'en-US'),
+
+// M: format a number as money (Toman)
+  M = n => N(n) + ' ' + T(['تومان', 'Toman']);
+
+// E: escape HTML special characters
+const E = s => String(s ?? '').replace(/[&<>"]/g, c => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;'
+}[c]));
+
+
+/* =========================================================
+   3. UI TEXT  (U = UI strings,  each is [Persian, English])
+   ========================================================= */
+const U = {
+  // Welcome / header
+  wel: ['خوش آمدید! ادامه را به کدام زبان می‌خواهید؟', 'Welcome! Continue in English or Persian?'],
+  title: ['فرم بریف طراحی وب‌سایت', 'Website Project Brief'],
+  intro: ['به سوال‌ها پاسخ دهید؛ قیمت تقریبی هم‌زمان پایین صفحه محاسبه می‌شود.', 'Answer the questions; the estimated price updates live at the bottom.'],
+
+  // Section 1: About you
+  s1: ['۱. درباره شما', '1. About you'],
+  brand: ['نام برند / کسب‌وکار', 'Brand / business name'],
+  name: ['نام شما', 'Your name'],
+  contact: ['شماره تماس یا آیدی تلگرام', 'Phone or Telegram ID'],
+  field: ['حوزه فعالیت و مخاطبان سایت', 'Your business & target audience'],
+
+  // Section 2: Brand identity
+  s2: ['۲. هویت بصری', '2. Brand identity'],
+  hasLogo: ['آیا لوگو دارید؟', 'Do you have a logo?'],
+  hasTheme: ['آیا تم رنگی / هویت بصری دارید؟', 'Do you have a color theme / brand style?'],
+  yes: ['بله', 'Yes'],
+  no: ['خیر', 'No'],
+  needLogo: ['می‌خواهید من لوگو را برایتان طراحی کنم؟', 'Do you need me to design the logo for you?'],
+  needTheme: ['می‌خواهید من تم و هویت بصری را برایتان بسازم؟', 'Do you need me to create the theme for you?'],
+
+  // Section 3: Website type
+  s3: ['۳. نوع وب‌سایت (می‌توانید چند مورد انتخاب کنید)', '3. Website type (select all that apply)'],
+
+  // Section 4: Size & languages
+  s4: ['۴. حجم و زبان', '4. Size & languages'],
+  pages: ['تعداد صفحات تقریبی', 'Approximate number of pages'],
+  langs: ['زبان‌های سایت (چندتایی)', 'Website languages (multiple)'],
+
+  // Section 5: Features
+  s5: ['۵. امکانات', '5. Features'],
+
+  // Section 6: Content
+  s6: ['۶. محتوا', '6. Content'],
+  content: ['متن و عکس‌ها را چه کسی تهیه می‌کند؟', 'Who provides the text and photos?'],
+  cOwn: ['خودم آماده می‌کنم', 'I will provide them'],
+  cWrite: ['شما بنویسید', 'You write them'],
+  cMix: ['ترکیبی', 'A mix'],
+
+  // Section 7: Technology
+  s7: ['۷. فناوری (اختیاری)', '7. Technology (optional)'],
+  stack: ['سایت روی چه بستری ساخته شود؟', 'What should the site be built on?'],
+  wp: ['وردپرس (سریع‌تر و ارزان‌تر)', 'WordPress (faster, cheaper)'],
+  cu: ['کدنویسی اختصاصی (سفارشی‌تر)', 'Custom code (more tailored)'],
+  idk: ['نمی‌دانم / پیشنهاد شما', 'Not sure / you decide'],
+
+  // Section 8: Taste
+  s8: ['۸. سلیقه شما', '8. Your taste'],
+  refs: ['لینک سایت‌هایی که دوست دارید (و چرا)', 'Links to websites you like (and why)'],
+  dis: ['چیزهایی که نمی‌خواهید در سایت باشد', 'Things you do NOT want in the site'],
+
+  // Section 9: Timeline
+  s9: ['۹. زمان‌بندی', '9. Timeline'],
+  dl: ['زمان تحویل', 'Delivery time'],
+  dn: ['عادی (حدود ۳–۶ هفته)', 'Normal (about 3–6 weeks)'],
+  dr: ['فوری (۳۰٪ هزینه بیشتر)', 'Rush (+30%)'],
+
+  // Section 10: Anything else
+  s10: ['۱۰. چیزی جا افتاده؟', '10. Still need to mention something I haven\'t asked about?'],
+  extra: ['هر توضیح دیگری…', 'Anything else…'],
+
+  // Price / summary / agreement sections
+  est: ['برآورد هزینه', 'Estimated total'],
+  s11: ['برآورد دقیق هزینه', 'Price breakdown'],
+  s12: ['قرارداد (قبل از ارسال بخوانید)', 'Agreement (please read before sending)'],
+  s13: ['آنچه باید به من بدهید', 'What you need to provide'],
+  s14: ['شرایط و تعهدات', 'Terms you must agree to'],
+  s15: ['خلاصه نهایی پروژه', 'Final project summary'],
+
+  // Buttons & messages
+  copy: ['کپی خلاصه', 'Copy summary'],
+  tg: ['کپی و باز کردن تلگرام', 'Copy & open Telegram'],
+  copied: ['کپی شد ✓', 'Copied ✓'],
+  lock: ['برای دیدن خلاصه و ارسال، همه موارد بالا را تیک بزنید.', 'Tick all terms above to unlock the summary & sending.'],
+  note: ['این برآورد اولیه است و پس از بررسی نهایی با توجه به جزئیات تغییر می‌کند.', 'This is an initial estimate; it may change after final review of details.'],
+  hint: ['اگر چیزی انتخاب نکنید، هر دو حالت زیر را با هزینه‌اش می‌بینید.', 'If undecided, you will see both options with costs below.']
+};
+
+// u: shortcut to get a UI string in the current language
+const u = k => T(U[k]);
+
+
+/* =========================================================
+   4. TERMS & CONTRACT TEXT
+   ========================================================= */
+
+// Checkboxes the client must tick before the summary unlocks
+const TERMS = [
+  ['خوانده‌ام و می‌پذیرم که ۵۰٪ مبلغ پیش از شروع کار و ۵۰٪ باقی‌مانده پس از تحویل نهایی پرداخت می‌شود.', 'I have read and understood that 50% is paid upfront and 50% after final delivery.'],
+  ['می‌دانم که اگر خرید افزونه یا ابزار پولی ضروری باشد، فریلنسر قبلاً به من اطلاع می‌دهد و هزینه آن بر عهده من است.', 'I understand the freelancer will notify me before any paid plugin/tool is needed, and its cost is on me.'],
+  ['می‌دانم که کار تا زمانی که همه موارد لیست «آنچه باید تحویل دهم» را نفرستم شروع نمی‌شود.', 'I understand work will not start until I have sent everything in the "what you need to provide" list.'],
+  ['قرارداد بالا را خوانده‌ام و با آن موافقم.', 'I have read the agreement above and agree to it.'],
+  ['اطلاعات واردشده درست است و می‌دانم تغییر در حجم کار می‌تواند قیمت را تغییر دهد.', 'The information is accurate, and I understand that scope changes may change the price.']
+];
+
+// The agreement clauses shown to the client
+const CONTRACT = [
+  ['موضوع: طراحی و پیاده‌سازی وب‌سایت مطابق خلاصه پروژه همین فرم.', 'Subject: design and build of the website described in this brief.'],
+  ['هزینه: مطابق برآورد بالا به تومان؛ ۵۰٪ پیش‌پرداخت و ۵۰٪ پس از تحویل. تحویل نهایی (انتقال فایل‌ها و دسترسی‌ها) پس از تسویه کامل انجام می‌شود.', 'Price: as estimated above, in Toman; 50% upfront, 50% after delivery. Final handover of files and access follows full payment.'],
+  ['زمان‌بندی: از روز دریافت پیش‌پرداخت و تمام مواد لازم (متن، تصویر، دسترسی‌ها) شروع می‌شود. تأخیر در ارسال مواد یا بازخورد، زمان تحویل را به همان اندازه جلو می‌اندازد.', 'Timeline: starts when the upfront payment and all required materials arrive. Delays in materials or feedback push the delivery date accordingly.'],
+  ['بازبینی: ۲ دور اصلاحات در قیمت گنجانده شده است؛ تغییرات بیشتر یا خارج از محدوده، جداگانه قیمت‌گذاری می‌شود.', 'Revisions: 2 rounds are included; further or out-of-scope changes are quoted separately.'],
+  ['هزینه‌های شخص ثالث (دامنه، هاست، سرور، افزونه و ابزار پولی، پنل پیامک و …) بر عهده کارفرماست و با اطلاع قبلی خریداری می‌شود.', 'Third-party costs (domain, hosting, server, paid plugins/tools, SMS panel, etc.) are the client\'s and are purchased with prior notice.'],
+  ['مالکیت: پس از تسویه کامل، سایت و فایل‌های اختصاصی آن به کارفرما منتقل می‌شود. فریلنسر می‌تواند پروژه را به‌عنوان نمونه‌کار نمایش دهد، مگر کارفرما کتباً مخالفت کند.', 'Ownership: after full payment the site and its custom files transfer to the client. The freelancer may show it in a portfolio unless the client objects in writing.'],
+  ['محرمانگی: اطلاعات و دسترسی‌های ارسالی محرمانه می‌ماند و فقط برای همین پروژه استفاده می‌شود.', 'Confidentiality: shared information and credentials stay confidential and are used only for this project.'],
+  ['پشتیبانی: ۱۴ روز رفع اشکال رایگان پس از تحویل؛ پس از آن طبق توافق جدید.', 'Support: 14 days of free bug fixes after delivery; afterwards by new agreement.'],
+  ['لغو: اگر پروژه پس از شروع لغو شود، پیش‌پرداخت بابت کار انجام‌شده برگشت داده نمی‌شود.', 'Cancellation: if cancelled after work begins, the upfront payment is non-refundable for work done.']
+];
+
+
+/* =========================================================
+   5. PRICE CALCULATION
+   ========================================================= */
+
+// sel: return only the items whose id (first element) is in the given Set
+const sel = (items, set) => items.filter(i => set.has(i[0]));
+
+// calc: build the list of price lines L = [[label, amount], ...] and the total
+function calc() {
+  const L = [];
+
+  // Selected types, most expensive first
+  const ty = sel(TYPES, S.types).sort((a, b) => b[2] - a[2]);
+
+  // The most expensive type is charged in full; the others as add-ons (reduced by sideTypes)
+  if (ty.length) L.push([T(ty[0][1]), ty[0][2]]);
+  ty.slice(1).forEach(t => L.push([T(t[1]) + ' (' + T(['افزودنی', 'add-on']) + ')', t[2] * CFG.sideTypes]));
+
+  // Extra pages beyond the included amount
+  const xp = Math.max(0, (+S.pages || 0) - CFG.includedPages);
+  if (xp) L.push([N(xp) + ' ' + T(['صفحه اضافه', 'extra pages']), xp * CFG.extraPage]);
+
+  // Extra languages (the first language is free)
+  const xl = Math.max(0, S.langs.size - 1);
+  if (xl) L.push([N(xl) + ' ' + T(['زبان اضافه', 'extra languages']), xl * CFG.extraLang]);
+
+  // Logo and theme design (only if the client has none and wants them made)
+  if (S.hasLogo == 'no' && S.needLogo == 'yes') L.push([T(['طراحی لوگو', 'Logo design']), CFG.logo]);
+  if (S.hasTheme == 'no' && S.needTheme == 'yes') L.push([T(['طراحی تم و هویت بصری', 'Theme / brand style']), CFG.theme]);
+
+  // Copywriting (full or half of the pages)
+  if (S.content == 'write') L.push([T(['تولید متن صفحات', 'Copywriting']), (+S.pages || 0) * CFG.writePerPage]);
+  if (S.content == 'mix') L.push([T(['تولید متن (نیمی از صفحات)', 'Copywriting (half the pages)']), (+S.pages || 0) * CFG.writePerPage / 2]);
+
+  // Selected features
+  sel(FEATS, S.feats).forEach(f => L.push([T(f[1]), f[2]]));
+
+  // Subtotal before multipliers
+  let sub = L.reduce((a, b) => a + b[1], 0);
+
+  // Custom-code multiplier
+  if (S.stack == 'cu') {
+    const x = sub * (CFG.customFactor - 1);
+    L.push([T(['ضریب کدنویسی اختصاصی', 'Custom-code factor']), x]);
+    sub += x
+  }
+
+  // Rush-delivery multiplier
+  if (S.dl == 'rush') {
+    const x = sub * (CFG.rushFactor - 1);
+    L.push([T(['هزینه فوری', 'Rush fee']), x]);
+    sub += x
+  }
+
+  return { L, total: sub }
+}
+
+
+/* =========================================================
+   6. "WHAT YOU NEED TO PROVIDE" LIST
+   ========================================================= */
+const R = CFG.req;
+
+// reqs: build the list of items the client must supply, depending on their choices.
+// Each entry is [title, description, price-hint]
+function reqs() {
+  const r = [];
+  const A = (a, b, c) => r.push([a, b, c || '']);
+
+  // Domain
+  A(
+    T(['دامنه (.ir از nic.ir یا ثبت‌کننده‌های ایرانی)', 'Domain (.ir via nic.ir or an Iranian registrar)']),
+    T(['اگر ندارید، من راهنمایی می‌کنم. فقط خرید با ریال/تومان.', 'If you have none, I will guide you. Rial/Toman payment only.']),
+    '.ir ≈ ' + M(R.ir) + ' / ' + T(['سال', 'yr']) + ' · .com ≈ ' + M(R.com)
+  );
+
+  // WordPress hosting entry
+  const w = [
+    T(['هاست ایرانی (مثلاً ایران‌سرور، پارس‌پک، ابرآروان)', 'Iranian hosting (e.g. IranServer, ParsPack, ArvanCloud)']),
+    T(['هاست سی‌پنل یا دایرکت‌ادمین + دسترسی به من', 'cPanel/DirectAdmin hosting + access for me']),
+    '≈ ' + M(R.wpHost) + ' / ' + T(['سال', 'yr'])
+  ];
+
+  // Custom-code (VPS) entry
+  const c = [
+    T(['سرور مجازی (VPS) ایرانی', 'Iranian VPS']),
+    T(['دسترسی SSH یا پنل + دامنه متصل', 'SSH/panel access + connected domain']),
+    '≈ ' + M(R.vps) + ' / ' + T(['سال', 'yr'])
+  ];
+
+  // Show WordPress, custom code, or both (when the client has not decided)
+  if (S.stack == 'wp') A(...w);
+  else if (S.stack == 'cu') A(...c);
+  else {
+    A(
+      T(['اگر وردپرس: ', 'If WordPress: ']) + w[0],
+      w[1],
+      w[2] + ' + ' + T(['افزونه/قالب پولی (در صورت نیاز) ', 'paid theme/plugins if needed ']) + M(R.wpPlug[0]) + '–' + M(R.wpPlug[1])
+    );
+    A(
+      T(['اگر کدنویسی اختصاصی: ', 'If custom code: ']) + c[0],
+      c[1],
+      c[2]
+    )
+  }
+
+  // Always needed
+  A(T(['نشانی ایمیل و شماره تماس رسمی کسب‌وکار', 'Business email & phone number']), '');
+
+  // Conditional items
+  if (S.hasLogo == 'yes') A(T(['لوگو با فرمت وکتور (SVG / AI / PDF / EPS)', 'Logo in vector format (SVG / AI / PDF / EPS)']), '');
+  if (S.hasTheme == 'yes') A(T(['رنگ‌ها، فونت‌ها و راهنمای برند', 'Brand colors, fonts & guidelines']), '');
+  if (S.content != 'write') A(T(['متن صفحات و عکس‌های باکیفیت', 'Page text and high-quality photos']), T(['به‌صورت فایل Word/متن و تصاویر اصلی', 'Word/text files and original images']));
+  if (S.types.has('shop') || S.types.has('dir')) A(T(['اطلاعات محصولات (نام، قیمت، توضیح، عکس)', 'Product data (name, price, description, photos)']), T(['ترجیحاً در Excel', 'Preferably in Excel']));
+  if (S.feats.has('pay') || S.types.has('shop')) A(T(['حساب درگاه پرداخت (زرین‌پال، زیبال، …) و مدارک احراز هویت', 'Payment gateway account (Zarinpal, Zibal…) with verification']), T(['برای فروشگاه معمولاً اینماد هم لازم است', 'Shops usually also need Enamad']));
+  if (S.feats.has('otp') || S.feats.has('sms')) A(T(['پنل پیامک ایرانی (کاوه‌نگار، ملی‌پیامک، …)', 'Iranian SMS panel (Kavenegar, Melipayamak…)']), '');
+  if (S.feats.has('map')) A(T(['آدرس دقیق و لوکیشن', 'Exact address & location']), '');
+  if (S.refs) A(T(['فهرست رقبا / شبکه‌های اجتماعی (اینستاگرام، تلگرام، …)', 'Competitors / social accounts (Instagram, Telegram…)']), '');
+
+  return r
+}
+
+
+/* =========================================================
+   7. FINAL TEXT SUMMARY (copied / sent via Telegram)
+   ========================================================= */
+function summary() {
+  const { L, total } = calc();
+
+  // g: get a state value or an em dash if empty
+  const g = (k) => S[k] || '—';
+
+  // Today's date (Persian calendar when in Persian)
+  const d = new Date().toLocaleDateString(S.lang == 'fa' ? 'fa-IR-u-ca-persian' : 'en-GB');
+
+  const o = [
+    u('title') + ' — ' + d,
+    '',
+
+    // About the client
+    '▪ ' + u('brand') + ': ' + g('brand'),
+    '▪ ' + u('name') + ': ' + g('name'),
+    '▪ ' + u('contact') + ': ' + g('contact'),
+    '▪ ' + u('field') + ': ' + g('field'),
+    '',
+
+    // Brand identity
+    '▪ ' + u('hasLogo') + ' ' + (S.hasLogo == 'yes' ? u('yes') : S.hasLogo == 'no' ? u('no') + (S.needLogo == 'yes' ? ' → ' + T(['طراحی توسط شما', 'designed by you']) : '') : '—'),
+    '▪ ' + u('hasTheme') + ' ' + (S.hasTheme == 'yes' ? u('yes') : S.hasTheme == 'no' ? u('no') + (S.needTheme == 'yes' ? ' → ' + T(['طراحی توسط شما', 'designed by you']) : '') : '—'),
+
+    // Project scope
+    '▪ ' + T(['نوع سایت', 'Type']) + ': ' + (sel(TYPES, S.types).map(t => T(t[1])).join('، ') || '—'),
+    '▪ ' + u('pages') + ': ' + N(S.pages || 0),
+    '▪ ' + u('langs') + ': ' + sel(LANGS, S.langs).map(t => T(t[1])).join('، '),
+    '▪ ' + u('s5') + ': ' + (sel(FEATS, S.feats).map(t => T(t[1])).join('، ') || '—'),
+    '▪ ' + u('content') + ' ' + ({ own: u('cOwn'), write: u('cWrite'), mix: u('cMix') }[S.content] || '—'),
+    '▪ ' + u('stack') + ' ' + ({ wp: 'WordPress', cu: T(['کد اختصاصی', 'Custom code']) }[S.stack] || u('idk')),
+    '▪ ' + u('dl') + ': ' + (S.dl == 'rush' ? u('dr') : u('dn')),
+
+    // Taste and notes
+    '▪ ' + u('refs') + ': ' + g('refs'),
+    '▪ ' + u('dis') + ': ' + g('dis'),
+    '▪ ' + u('s10') + ': ' + g('extra'),
+    '',
+
+    // Price breakdown
+    '== ' + u('s11') + ' ==',
+    ...L.map(l => '• ' + l[0] + ': ' + M(l[1])),
+    '= ' + u('est') + ': ' + M(total),
+    T(['پرداخت: ۵۰٪ پیش، ۵۰٪ پس از تحویل', 'Payment: 50% upfront, 50% on delivery']),
+    '',
+
+    // Checklist of what the client must provide
+    '== ' + u('s13') + ' ==',
+    ...reqs().map(r => '☐ ' + r[0]),
+    '',
+
+    // Confirmation line
+    '✔ ' + T(['همه شرایط و قرارداد توسط کارفرما تأیید شد.', 'Client accepted all terms & the agreement.'])
+  ];
+
+  return o.join('\n')
+}
+
+
+/* =========================================================
+   8. HTML BUILDING HELPERS
+   ========================================================= */
+
+// inp: text input bound to state key k, with label from U[l]
+const inp = (k, l) => `<label>${u(l)}<input type="text" data-k="${k}" value="${E(S[k])}"></label>`;
+
+// ta: textarea bound to state key k
+const ta = (k, l) => `<label>${u(l)}<textarea data-k="${k}">${E(S[k])}</textarea></label>`;
+
+// rg: radio group; o = [[value, labelKey], ...]
+const rg = (k, o) => o.map(([v, l]) => `<label class="opt"><input type="radio" name="${k}" data-k="${k}" value="${v}" ${S[k] == v ? 'checked' : ''}>${u(l)}</label>`).join('');
+
+// cg: checkbox group bound to the Set S[s]; p = show prices
+const cg = (s, items, p) => items.map(i => `<label class="opt"><input type="checkbox" data-set="${s}" value="${i[0]}" ${S[s].has(i[0]) ? 'checked' : ''}>${T(i[1])}${p ? `<small>${M(i[2])}</small>` : ''}</label>`).join('');
+
+// Yes / No options reused by several radio groups
+const yn = [['yes', 'yes'], ['no', 'no']];
+
+
+/* =========================================================
+   9. BUILD THE WHOLE FORM
+   ========================================================= */
+function build() {
+  // Apply language and text direction to the document
+  const f = document.documentElement;
+  f.lang = S.lang;
+  f.dir = S.lang == 'fa' ? 'rtl' : 'ltr';
+
+  // (helper that renders the requirements list as HTML)
+  const reqHtml = () => reqs().map(r => `<li><b>${E(r[0])}</b>${r[1] ? '<br><span class="mu">' + E(r[1]) + '</span>' : ''}${r[2] ? '<br><span class="mu">' + E(r[2]) + '</span>' : ''}</li>`).join('');
+
+  // Render every section of the form
+  document.getElementById('app').innerHTML = `<h1>${u('title')}</h1><p class="mu">${u('intro')}</p>
+ <div class="card"><h2>${u('s1')}</h2>${inp('brand', 'brand')}${inp('name', 'name')}${inp('contact', 'contact')}${ta('field', 'field')}</div>
+ <div class="card"><h2>${u('s2')}</h2><label>${u('hasLogo')}</label>${rg('hasLogo', yn)}<div class="box" id="nl" hidden><b>${u('needLogo')}</b>${rg('needLogo', yn)}</div>
+ <label>${u('hasTheme')}</label>${rg('hasTheme', yn)}<div class="box" id="nt" hidden><b>${u('needTheme')}</b>${rg('needTheme', yn)}</div></div>
+ <div class="card"><h2>${u('s3')}</h2><div class="grid">${cg('types', TYPES)}</div></div>
+ <div class="card"><h2>${u('s4')}</h2><label>${u('pages')}<input type="number" min="1" max="200" data-k="pages" value="${S.pages}"></label>
+ <label>${u('langs')}</label><details open><summary>${T(['انتخاب زبان‌ها', 'Choose languages'])} (<span id="lc"></span>)</summary>${cg('langs', LANGS)}</details></div>
+ <div class="card"><h2>${u('s5')}</h2><div class="grid">${cg('feats', FEATS, 1)}</div></div>
+ <div class="card"><h2>${u('s6')}</h2><label>${u('content')}</label>${rg('content', [['own', 'cOwn'], ['write', 'cWrite'], ['mix', 'cMix']])}</div>
+ <div class="card"><h2>${u('s7')}</h2><label>${u('stack')}</label>${rg('stack', [['wp', 'wp'], ['cu', 'cu'], ['', 'idk']])}<p class="mu">${u('hint')}</p></div>
+ <div class="card"><h2>${u('s8')}</h2>${ta('refs', 'refs')}${ta('dis', 'dis')}</div>
+ <div class="card"><h2>${u('s9')}</h2>${rg('dl', [['normal', 'dn'], ['rush', 'dr']])}</div>
+ <div class="card"><h2>${u('s10')}</h2>${ta('extra', 'extra')}</div>
+ <div class="card"><h2>${u('s11')}</h2><div class="ov"><table id="bk"></table></div><p class="mu">${u('note')}</p></div>
+ <div class="card"><h2>${u('s12')}</h2><ol class="ct">${CONTRACT.map(c => '<li>' + T(c) + '</li>').join('')}</ol></div>
+ <div class="card"><h2>${u('s13')}</h2><ul class="ct" id="rq"></ul></div>
+ <div class="card"><h2>${u('s14')}</h2>${TERMS.map((t, i) => `<label class="opt"><input type="checkbox" data-t="${i}" ${S.terms[i] ? 'checked' : ''}>${T(t)}</label>`).join('')}</div>
+ <div class="card"><h2>${u('s15')}</h2><p class="mu" id="lk">${u('lock')}</p><div id="sm" hidden><textarea id="st" readonly style="min-height:260px" dir="auto"></textarea>
+ <button class="btn" id="cp">${u('copy')}</button> <button class="btn s" id="tg">${u('tg')}</button></div></div>
+ <button class="btn s" id="sw">${S.lang == 'fa' ? 'English' : 'فارسی'}</button>`;
+
+  // Fill in the dynamic parts (prices, lists, visibility)
+  upd()
+}
+
+
+/* =========================================================
+   10. UPDATE THE DYNAMIC PARTS (called on every change)
+   ========================================================= */
+function upd() {
+  const { L, total } = calc();
+
+  // Fixed bottom bar: label + live total
+  document.getElementById('bar').hidden = false;
+  document.getElementById('bl').textContent = u('est');
+  document.getElementById('bt').textContent = M(total);
+
+  // Show the "do you need me to design it?" boxes only when the client answered "No"
+  document.getElementById('nl').hidden = S.hasLogo != 'no';
+  document.getElementById('nt').hidden = S.hasTheme != 'no';
+
+  // Number of selected languages
+  document.getElementById('lc').textContent = N(S.langs.size);
+
+  // Price breakdown table
+  document.getElementById('bk').innerHTML = L.map(l => `<tr><td>${E(l[0])}</td><td>${M(l[1])}</td></tr>`).join('') + `<tr class="tot"><td>${u('est')}</td><td>${M(total)}</td></tr>`;
+
+  // "What you need to provide" list
+  document.getElementById('rq').innerHTML = reqs().map(r => `<li><b>${E(r[0])}</b>${r[1] ? '<br><span class="mu">' + E(r[1]) + '</span>' : ''}${r[2] ? '<br><span class="mu">' + E(r[2]) + '</span>' : ''}</li>`).join('');
+
+  // Unlock the summary only when every term is ticked
+  const ok = S.terms.every(Boolean);
+  document.getElementById('sm').hidden = !ok;
+  document.getElementById('lk').hidden = ok;
+  if (ok) document.getElementById('st').value = summary()
+}
+
+
+/* =========================================================
+   11. EVENT HANDLING
+   ========================================================= */
+
+// Any input/change inside #app updates the state, then refreshes the UI
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (!t.closest('#app')) return;
+
+  if (t.dataset.k) {
+    // Plain text / number / radio value
+    S[t.dataset.k] = t.type == 'number' ? Math.max(1, +t.value || 1) : t.value
+  }
+  else if (t.dataset.set) {
+    // Checkbox belonging to a Set (types / langs / feats)
+    const s = S[t.dataset.set];
+    t.checked ? s.add(t.value) : s.delete(t.value)
+  }
+  else if (t.dataset.t !== undefined)
+    // Term checkbox
+    S.terms[+t.dataset.t] = t.checked ? 1 : 0;
+
+  upd()
+});
+
+// Clicks: language switch, copy summary, open Telegram, and the welcome gate
+document.addEventListener('click', async e => {
+  const id = e.target.id;
+
+  // Switch language and rebuild the form
+  if (id == 'sw') {
+    S.lang = S.lang == 'fa' ? 'en' : 'fa';
+    build();
+    scrollTo(0, 0)
+  }
+
+  // Copy the summary (and open Telegram for the "tg" button)
+  if (id == 'cp' || id == 'tg') {
+    const ta = document.getElementById('st');
+    ta.value = summary();
+
+    try {
+      await navigator.clipboard.writeText(ta.value)
+    } catch (_) {
+      // Fallback for browsers without the clipboard API
+      ta.select();
+      document.execCommand('copy')
+    }
+
+    if (id == 'cp') {
+      e.target.textContent = u('copied');
+      setTimeout(() => e.target.textContent = u('copy'), 2000)
+    } else window.open('https://t.me/' + CFG.tg, '_blank')
+  }
+
+  // Language chosen on the welcome gate: set it and build the form
+  if (e.target.dataset.lang) {
+    S.lang = e.target.dataset.lang;
+    build()
+  }
+});
+
+
+/* =========================================================
+   12. INITIAL SCREEN: language selection gate
+   ========================================================= */
+document.getElementById('app').innerHTML = `<div id="gate"><h1>خوش آمدید! ادامه را به کدام زبان می‌خواهید؟</h1><p class="mu">Welcome · فارسی / English</p><button class="btn" data-lang="fa">فارسی</button><button class="btn" data-lang="en">English</button></div>`;
+</script>
+
+</body>
+</html>
